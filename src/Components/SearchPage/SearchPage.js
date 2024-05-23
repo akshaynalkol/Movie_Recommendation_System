@@ -3,7 +3,7 @@ import axios from 'axios';
 import Card from '../Card';
 import Pagination from '../Pagination';
 import { useSearchParams } from 'react-router-dom';
-import { MOVIE_SERACH_API } from '../../Utils/Constant';
+import { API_KEY } from '../../Utils/Constant';
 
 const SearchPage = () => {
     const [data, setData] = useState([]);
@@ -12,25 +12,25 @@ const SearchPage = () => {
     const movie_name = searchParams.get('q');
 
     // Pagination
-    const [currPage, setCurrPage] = useState(1);
-    const recordsPerPage = 8;
-    const lastIndex = currPage * recordsPerPage;
-    const firstIndex = lastIndex - recordsPerPage;
-    const records = data.slice(firstIndex, lastIndex);
+    const [page, setPage] = useState(1);
+    const limit=20;
+    const [totalPage, setTotalPage] = useState(1);
 
 
     const searchData = async () => {
         setLoading(true);
-        const res = await axios.get(MOVIE_SERACH_API + movie_name);
+        const res = await axios.get
+            (`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=en-US&page=${page}&query=${movie_name}`)
         // console.log(res.data.results);
 
         setLoading(false);
         setData(res.data.results);
+        setTotalPage(res.data.total_pages);
     }
 
     useEffect(() => {
         searchData();
-    }, [searchParams]);
+    }, [searchParams,page]);
 
     if (data.length === 0 && loading === false) {
         return <h5 className='text-center text-light bg-dark py-4 mb-0' style={{ height: '90.2vh' }}>
@@ -49,20 +49,18 @@ const SearchPage = () => {
                             </p> :
                             <>
                                 {
-                                    records && records.map((val, index) => {
+                                    data && data.map((val, index) => {
                                         return (
-                                            val.poster_path &&
                                             <div className='col-lg-3 col-md-4 col-sm-6' key={index}>
                                                 <Card data={val} />
                                             </div>
                                         )
                                     })
                                 }
-                                < Pagination data={data} currPage={currPage} setCurrPage={setCurrPage} recordsPerPage={recordsPerPage} />
+                                <Pagination page={page} setPage={setPage} limit={limit} totalPage={totalPage} siblings={1} />
                             </>
                     }
                 </div>
-
             </div>
         </div>
     )

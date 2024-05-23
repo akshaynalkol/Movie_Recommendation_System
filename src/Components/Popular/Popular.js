@@ -3,30 +3,30 @@ import axios from 'axios';
 import Card from '../Card';
 import Pagination from '../Pagination';
 import { ALL_MOVIES_API } from '../../Utils/Constant';
+import { Link } from 'react-router-dom';
 
 const Popular = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
 
     // Pagination  
-    const [currPage, setCurrPage] = useState(1);
-    const recordsPerPage = 8;
-    const lastIndex = currPage * recordsPerPage;
-    const firstIndex = lastIndex - recordsPerPage;
-    const records = data.slice(firstIndex, lastIndex);
+    const [page, setPage] = useState(1);
+    const limit=20;
+    const [totalPage, setTotalPage] = useState(1);
 
     const getData = async () => {
         setLoading(true);
-        const res = await axios.get(ALL_MOVIES_API);
+        const res = await axios.get(ALL_MOVIES_API + page);
         // console.log(res.data.results);
 
         setLoading(false);
         setData(res.data.results);
+        setTotalPage(500);
     }
 
     useEffect(() => {
         getData();
-    }, []);
+    }, [page]);
 
     return (
         <div className='bg-dark'>
@@ -37,7 +37,7 @@ const Popular = () => {
                             <p className='text-center text-light mb-0' style={{ height: '86.5vh' }}>
                                 <span className='spinner-border'></span>
                             </p> :
-                            records && records.map((val, index) => {
+                            data && data.map((val, index) => {
                                 return (
                                     <div className='col-lg-3 col-md-4 col-sm-6' key={index}>
                                         <Card data={val} />
@@ -46,11 +46,11 @@ const Popular = () => {
                             })
                     }
                 </div>
-                <Pagination data={data} currPage={currPage} setCurrPage={setCurrPage} recordsPerPage={recordsPerPage} />
+                <Pagination page={page} setPage={setPage} limit={limit} totalPage={totalPage} siblings={1} />
             </div>
         </div>
 
     )
 }
 
-export default Popular
+export default Popular;
